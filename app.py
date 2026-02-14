@@ -6,19 +6,8 @@ from typing import Optional, Tuple
 import numpy as np
 import pandas as pd
 import streamlit as st
-from sklearn.exceptions import InconsistentVersionWarning
-from sklearn.metrics import (
-    accuracy_score,
-    classification_report,
-    confusion_matrix,
-    f1_score,
-    matthews_corrcoef,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-)
 
-warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+warnings.filterwarnings("ignore", message=".*Trying to unpickle estimator.*")
 warnings.filterwarnings("ignore", message=".*serialized model.*")
 
 FEATURE_COLUMNS = [
@@ -232,6 +221,15 @@ def probability_or_none(model, features: pd.DataFrame) -> Optional[np.ndarray]:
 def compute_metrics(
     y_true: pd.Series, y_pred: np.ndarray, y_score: Optional[np.ndarray]
 ) -> dict:
+    from sklearn.metrics import (
+        accuracy_score,
+        f1_score,
+        matthews_corrcoef,
+        precision_score,
+        recall_score,
+        roc_auc_score,
+    )
+
     metrics = {
         "Accuracy": accuracy_score(y_true, y_pred),
         "Precision": precision_score(y_true, y_pred, zero_division=0),
@@ -328,6 +326,8 @@ if uploaded_file is not None:
 
             st.header("📈 Model Performance Metrics")
             if y_true is not None:
+                from sklearn.metrics import classification_report, confusion_matrix
+
                 metrics = compute_metrics(y_true, y_pred, y_score)
                 display_metrics(metrics)
 
