@@ -111,6 +111,8 @@ TARGET_MAP = {
     "1": 1,
     "0": 0,
 }
+METRIC_COLUMNS = ["Accuracy", "AUC", "Precision", "Recall", "F1", "MCC"]
+SAMPLE_DATA_PATH = Path(__file__).resolve().parent / "test_data_sample.csv"
 
 
 @st.cache_resource
@@ -259,6 +261,29 @@ def display_metrics(metrics: dict):
     col6.metric("MCC", f"{metrics['MCC']:.4f}")
 
 
+def compare_models(
+    models: dict, features: pd.DataFrame, y_true: Optional[pd.Series]
+) -> pd.DataFrame:
+    rows = []
+    for model_name, model in models.items():
+        if y_true is None:
+            metrics = BENCHMARK_METRICS[model_name]
+        else:
+            y_pred = model.predict(features)
+            y_score = probability_or_none(model, features)
+            metrics = compute_metrics(y_true, y_pred, y_score)
+        row = {"Model": model_name}
+        row.update(metrics)
+        rows.append(row)
+
+    comparison_df = pd.DataFrame(rows)
+    comparison_df["_sort_auc"] = comparison_df["AUC"].fillna(-1)
+    comparison_df = comparison_df.sort_values(
+        by=["_sort_auc", "Accuracy"], ascending=False
+    ).drop(columns=["_sort_auc"])
+    return comparison_df[["Model"] + METRIC_COLUMNS]
+
+
 st.set_page_config(page_title="Credit Card Churn Prediction", page_icon="🎯")
 
 st.title("🎯 Credit Card Customer Churn Prediction")
@@ -266,17 +291,41 @@ st.markdown("### ML Assignment 2 - Abhinav Mandloi")
 st.markdown(
     """
 This app supports:
+- Built-in sample data for quick demo
 - CSV upload for test records
 - Model selection across 6 classifiers
 - Real churn prediction with probability
 - Metrics + confusion matrix/classification report (if `Attrition_Flag` exists)
+- Side-by-side comparison of all 6 models
 """
 )
 
 st.header("📁 Upload Customer Data")
-uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
+data_source = st.radio(
+    "Choose data source:",
+    options=["Upload CSV", "Use Built-in Sample Data"],
+    horizontal=True,
+)
 
-if uploaded_file is not None:
+uploaded_file = None
+if data_source == "Upload CSV":
+    uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
+else:
+    if SAMPLE_DATA_PATH.exists():
+        sample_bytes = SAMPLE_DATA_PATH.read_bytes()
+        st.download_button(
+            label="Download Initial Sample CSV",
+            data=sample_bytes,
+            file_name="test_data_sample.csv",
+            mime="text/csv",
+        )
+        uploaded_df = pd.read_csv(SAMPLE_DATA_PATH)
+        st.info("Using built-in sample data (`test_data_sample.csv`).")
+    else:
+        st.error("Built-in sample data file is missing.")
+        st.stop()
+
+if data_source == "Upload CSV" and uploaded_file is not None:
     try:
         uploaded_df = pd.read_csv(uploaded_file)
     except pd.errors.EmptyDataError:
@@ -288,6 +337,9 @@ if uploaded_file is not None:
         st.error(f"Could not read CSV file: {exc}")
         st.stop()
 
+if (data_source == "Upload CSV" and uploaded_file is not None) or (
+    data_source == "Use Built-in Sample Data"
+):
     st.success(
         f"File uploaded successfully! Shape: {uploaded_df.shape[0]} rows x {uploaded_df.shape[1]} columns"
     )
@@ -297,75 +349,101 @@ if uploaded_file is not None:
     st.header("🤖 Select Classification Model")
     selected_model_name = st.selectbox("Choose a model:", list(MODEL_FILES.keys()))
 
-    if st.button("Run Prediction", type="primary"):
+    action_col1, action_col2 = st.columns(2)
+    run_prediction = action_col1.button("Run Prediction", type="primary")
+    run_comparison = action_col2.button("Compare All Models")
+
+    if run_prediction or run_comparison:
         try:
             with st.spinner("Loading artifacts and running inference..."):
                 models, label_encoders, scaler = load_artifacts()
-                model = models[selected_model_name]
                 X_processed, y_true = preprocess_input(
                     uploaded_df, label_encoders, scaler
                 )
+
+            if run_prediction:
+                model = models[selected_model_name]
                 y_pred = model.predict(X_processed)
                 y_score = probability_or_none(model, X_processed)
 
-            result_df = uploaded_df.copy()
-            result_df["Predicted_Attrition"] = np.where(
-                y_pred == 1, "Attrited Customer", "Existing Customer"
-            )
-            if y_score is not None:
-                result_df["Churn_Probability"] = np.round(y_score, 4)
-
-            st.subheader("🔮 Prediction Results")
-            st.dataframe(result_df.head(50), use_container_width=True)
-            st.download_button(
-                label="Download Predictions CSV",
-                data=result_df.to_csv(index=False).encode("utf-8"),
-                file_name="churn_predictions.csv",
-                mime="text/csv",
-            )
-
-            st.header("📈 Model Performance Metrics")
-            if y_true is not None:
-                from sklearn.metrics import classification_report, confusion_matrix
-
-                metrics = compute_metrics(y_true, y_pred, y_score)
-                display_metrics(metrics)
-
-                st.subheader("🔢 Confusion Matrix")
-                matrix = confusion_matrix(y_true, y_pred, labels=[0, 1])
-                matrix_df = pd.DataFrame(
-                    matrix,
-                    index=["Actual: Existing", "Actual: Attrited"],
-                    columns=["Predicted: Existing", "Predicted: Attrited"],
+                result_df = uploaded_df.copy()
+                result_df["Predicted_Attrition"] = np.where(
+                    y_pred == 1, "Attrited Customer", "Existing Customer"
                 )
-                st.dataframe(matrix_df, use_container_width=True)
+                if y_score is not None:
+                    result_df["Churn_Probability"] = np.round(y_score, 4)
 
-                st.subheader("📄 Classification Report")
-                report_dict = classification_report(
-                    y_true,
-                    y_pred,
-                    target_names=["Existing Customer", "Attrited Customer"],
-                    output_dict=True,
-                    zero_division=0,
-                )
-                st.dataframe(pd.DataFrame(report_dict).transpose(), use_container_width=True)
-            else:
-                st.info(
-                    "No `Attrition_Flag` column found in uploaded CSV. "
-                    "Showing stored benchmark metrics for selected model."
-                )
-                display_metrics(BENCHMARK_METRICS[selected_model_name])
-                st.subheader("🔢 Sample Confusion Matrix")
-                st.text(
-                    "Retain vs Churn sample matrix from test evaluation:\n"
-                    "TN=1520, FP=32, FN=21, TP=427"
+                st.subheader("🔮 Prediction Results")
+                st.dataframe(result_df.head(50), use_container_width=True)
+                st.download_button(
+                    label="Download Predictions CSV",
+                    data=result_df.to_csv(index=False).encode("utf-8"),
+                    file_name="churn_predictions.csv",
+                    mime="text/csv",
                 )
 
-            st.success(f"{selected_model_name} completed successfully.")
+                st.header("📈 Model Performance Metrics")
+                if y_true is not None:
+                    from sklearn.metrics import classification_report, confusion_matrix
+
+                    metrics = compute_metrics(y_true, y_pred, y_score)
+                    display_metrics(metrics)
+
+                    st.subheader("🔢 Confusion Matrix")
+                    matrix = confusion_matrix(y_true, y_pred, labels=[0, 1])
+                    matrix_df = pd.DataFrame(
+                        matrix,
+                        index=["Actual: Existing", "Actual: Attrited"],
+                        columns=["Predicted: Existing", "Predicted: Attrited"],
+                    )
+                    st.dataframe(matrix_df, use_container_width=True)
+
+                    st.subheader("📄 Classification Report")
+                    report_dict = classification_report(
+                        y_true,
+                        y_pred,
+                        target_names=["Existing Customer", "Attrited Customer"],
+                        output_dict=True,
+                        zero_division=0,
+                    )
+                    st.dataframe(
+                        pd.DataFrame(report_dict).transpose(), use_container_width=True
+                    )
+                else:
+                    st.info(
+                        "No `Attrition_Flag` column found in uploaded CSV. "
+                        "Showing stored benchmark metrics for selected model."
+                    )
+                    display_metrics(BENCHMARK_METRICS[selected_model_name])
+                    st.subheader("🔢 Sample Confusion Matrix")
+                    st.text(
+                        "Retain vs Churn sample matrix from test evaluation:\n"
+                        "TN=1520, FP=32, FN=21, TP=427"
+                    )
+
+                st.success(f"{selected_model_name} completed successfully.")
+
+            if run_comparison:
+                st.header("📊 All Models Comparison")
+                comparison_df = compare_models(models, X_processed, y_true)
+                st.dataframe(comparison_df, use_container_width=True)
+
+                if y_true is None:
+                    st.info(
+                        "Comparison uses stored benchmark metrics because uploaded data "
+                        "does not include `Attrition_Flag`."
+                    )
+                else:
+                    best_model = comparison_df.iloc[0]["Model"]
+                    best_auc = comparison_df.iloc[0]["AUC"]
+                    best_text = "N/A" if pd.isna(best_auc) else f"{best_auc:.4f}"
+                    st.success(
+                        f"Best model on uploaded data (by AUC): {best_model} (AUC: {best_text})"
+                    )
         except Exception as exc:
             st.error(f"Prediction failed: {exc}")
 else:
-    st.info("Please upload a CSV file to begin predictions.")
+    st.info("Please upload a CSV file or switch to built-in sample data.")
     with st.expander("Expected CSV Columns"):
         st.code(", ".join(FEATURE_COLUMNS) + f", {TARGET_COLUMN} (optional)")
 
