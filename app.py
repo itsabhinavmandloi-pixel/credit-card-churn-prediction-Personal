@@ -451,7 +451,7 @@ st.markdown("---")
 st.markdown(
     """
 ### 📚 Complete Project Resources
-- **GitHub Repository:** [github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction](https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction)
+- **GitHub Repository:** [github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal](https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal)
 - **All 6 Models:** Trained and saved as `.pkl` files in `model/`
 - **Dataset:** BankChurners.csv from Kaggle
 """

@@ -129,6 +129,7 @@ credit-card-churn-prediction/
 │
 ├── app.py                              # Streamlit web application
 ├── requirements.txt                    # Python dependencies
+├── runtime.txt                         # Streamlit Cloud Python runtime hint
 ├── README.md                           # Project documentation
 ├── model/                              # Trained model files directory
 │   ├── logistic_regression_model.pkl
@@ -138,7 +139,8 @@ credit-card-churn-prediction/
 │   ├── random_forest_model.pkl
 │   ├── xgboost_model.pkl
 │   ├── scaler.pkl                      # StandardScaler for preprocessing
-│   └── label_encoders.pkl              # Label encoders for categorical variables
+│   ├── label_encoders.pkl              # Label encoders for categorical variables
+│   └── train_models.py                 # Training + evaluation source code
 └── test_data_sample.csv                # Sample test data for app demo
 ```
 
@@ -148,15 +150,15 @@ credit-card-churn-prediction/
 
 ### Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher
 - pip package manager
 
 ### Steps
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction.git
-   cd credit-card-churn-prediction
+   git clone https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal.git
+   cd credit-card-churn-prediction-Personal
    ```
 
 2. **Create a virtual environment (optional but recommended):**
@@ -187,7 +189,7 @@ credit-card-churn-prediction/
 
 ### Using the Application
 
-1. **Select a Model:** Choose from 6 available ML models in the sidebar
+1. **Select a Model:** Choose from 6 available ML models in the dropdown
 2. **Upload Data:** Upload a CSV file containing customer data
 3. **View Predictions:** See churn predictions and probabilities
 4. **Analyze Results:** Review confusion matrix, metrics, and classification report (if ground truth labels are provided)
@@ -225,14 +227,13 @@ Optionally include `Attrition_Flag` for model evaluation.
 | Technology | Version | Purpose |
 |:-----------|:-------:|:--------|
 | Python | 3.8+ | Programming language |
-| Streamlit | 1.31.0 | Web application framework |
-| Scikit-learn | 1.4.0 | Machine learning models |
+| Streamlit | 1.41.1 | Web application framework |
+| Scikit-learn | 1.6.1 | Machine learning models |
 | XGBoost | 2.0.3 | Gradient boosting model |
-| Pandas | 2.2.0 | Data manipulation |
-| NumPy | 1.26.3 | Numerical operations |
-| Matplotlib | 3.8.2 | Data visualization |
-| Seaborn | 0.13.1 | Statistical visualization |
-| Imbalanced-learn | 0.12.0 | Handling imbalanced datasets |
+| Pandas | 2.2.3 | Data manipulation |
+| NumPy | 2.2.3 | Numerical operations |
+| Matplotlib | 3.10.0 | Data visualization |
+| Seaborn | 0.13.2 | Statistical visualization |
 
 ---
 
