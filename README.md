@@ -271,8 +271,3 @@ This project is developed for academic purposes as part of M.Tech ML Assignment.
 
 This is an academic project. For suggestions or improvements, please feel free to reach out.
 
----
-
-<div align="center">
-  <b>⭐ If you find this project useful, please consider giving it a star! ⭐</b>
-</div>
