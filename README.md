@@ -2,18 +2,6 @@
 
 A comprehensive machine learning solution for predicting customer churn in credit card services using multiple classification algorithms and an interactive Streamlit web application.
 
-# 💳 Credit Card Customer Churn Prediction
-
-A comprehensive machine learning solution for predicting customer churn in credit card services using multiple classification algorithms and an interactive Streamlit web application.
-
----
-
-## 🚀 Live Deployment
-
-**Streamlit Web Application:** [https://itsabhinavmandloi-pixel-credit-card-churn-prediction-app-w8aev8.streamlit.app/](https://itsabhinavmandloi-pixel-credit-card-churn-prediction-app-w8aev8.streamlit.app/)
-
-**GitHub Repository:** [https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal](https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal)
-
 ---
 
 ## 📋 Table of Contents
