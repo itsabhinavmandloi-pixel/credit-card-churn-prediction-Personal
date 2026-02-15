@@ -2,10 +2,23 @@
 
 A comprehensive machine learning solution for predicting customer churn in credit card services using multiple classification algorithms and an interactive Streamlit web application.
 
+# 💳 Credit Card Customer Churn Prediction
+
+A comprehensive machine learning solution for predicting customer churn in credit card services using multiple classification algorithms and an interactive Streamlit web application.
+
+---
+
+## 🚀 Live Deployment
+
+**Streamlit Web Application:** [https://itsabhinavmandloi-pixel-credit-card-churn-prediction-app-w8aev8.streamlit.app/](https://itsabhinavmandloi-pixel-credit-card-churn-prediction-app-w8aev8.streamlit.app/)
+
+**GitHub Repository:** [https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal](https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal)
+
 ---
 
 ## 📋 Table of Contents
 
+- [Live Deployment](#live-deployment) 
 - [Problem Statement](#problem-statement)
 - [Dataset Description](#dataset-description)
 - [Models Used](#models-used)
@@ -18,6 +31,17 @@ A comprehensive machine learning solution for predicting customer churn in credi
 - [Author](#author)
 
 ---
+
+## 🚀 Live Deployment
+
+**🌐 Streamlit Web Application:** [https://itsabhinavmandloi-pixel-credit-card-churn-prediction-app-w8aev8.streamlit.app/](https://itsabhinavmandloi-pixel-credit-card-churn-prediction-app-w8aev8.streamlit.app/)
+
+**📂 GitHub Repository:** [https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal](https://github.com/itsabhinavmandloi-pixel/credit-card-churn-prediction-Personal)
+
+> ⭐ **Try the live demo!** Upload customer data and get real-time churn predictions across 6 different ML models.
+
+---
+
 
 ## 🎯 Problem Statement
 
@@ -241,7 +265,11 @@ Optionally include `Attrition_Flag` for model evaluation.
 
 **Abhinav Mandloi**  
 M.Tech in Artificial Intelligence & Machine Learning  
-ML Assignment 2 - Credit Card Churn Prediction
+BITS Pilani - Work Integrated Learning Programmes  
+**BITS ID:** 2025aa05473
+
+**Project:** ML Assignment 2 - Credit Card Customer Churn Prediction  
+**Submission Date:** February 15, 2026
 
 ---
 
